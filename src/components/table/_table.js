@@ -25,6 +25,13 @@ var RTable = Vue.extend({
     // asc, desc
     sortDir: String,
     loading: Boolean,
+    // 合计相关
+    showSummary: Boolean,
+    summaryText: {
+      type: String,
+      default: '合计'
+    },
+    summaryMethod: Function,
   },
   data () {
     return {
@@ -96,6 +103,8 @@ var RTable = Vue.extend({
                         me.data.forEach(data=>{
                           data.__checked = value
                         })
+
+                        me.$emit('check-all-change', value)
 
                         me.renderHook ++
                       }
@@ -171,6 +180,8 @@ var RTable = Vue.extend({
                     else {
                       data.__checked = false
                     }
+
+                    me.$emit('check-change', data)
                     me.renderHook ++
                   },
                   no_click (e) {
@@ -194,6 +205,8 @@ var RTable = Vue.extend({
                     }
 
                     me.radioData = data
+
+                    me.$emit('check-change', data)
                     me.renderHook ++
                   },
                   no_click (e) {
@@ -210,17 +223,29 @@ var RTable = Vue.extend({
                 }
               }
 
-              return td({'s_text-align': conf.align},
-                div({
-                  s_width: conf.ellipsis ? conf.width + 'px' : null,
-                  's_white-space': conf.ellipsis ? 'nowrap' : null,
-                }, tdContent)
-              )
+              return this._renderTd(conf, tdContent)
             })
             // 列 end
             )
-          })
+          }),
+          this._renderSummary()
         )
+      )
+    },
+    _renderTd (column, text) {
+      var style = {}
+
+      if (column.ellipsis){
+        style = {
+          s_width: column.width + 'px',
+          's_white-space': 'nowrap',
+          s_overflow: 'hidden',
+          's_text-overflow': 'ellipsis'
+        }
+      }
+
+      return td({'s_text-align': column.align},
+        div(style, text)
       )
     },
     _renderColgroup () {
@@ -233,6 +258,52 @@ var RTable = Vue.extend({
           })
         )
       )
+    },
+    _renderSummary () {
+      var columnConfs = this.columnConfs
+      var dataSource = this.data
+
+      if (!(this.showSummary && dataSource.length && columnConfs.length)){
+        return
+      }
+
+      var summaryData = this._getSummaryData(columnConfs, dataSource)
+
+      return tr('.summary',
+        ...summaryData.map((text, idx) => {
+          var column = columnConfs[idx]
+          return this._renderTd(column, text)
+        })
+      )
+    },
+    _getSummaryData (columnConfs, dataSource) {
+      if (this.summaryMethod) {
+        return this.summaryMethod(columnConfs, dataSource)
+      }
+
+      var summary = []
+
+      columnConfs.forEach((column, idx) => {
+        if (idx === 0){
+          summary[idx] = this.summaryText
+          return
+        }
+        if (!column.field){
+          summary[idx] = ''
+          return
+        }
+
+        var values = dataSource.map(item => Number(instance.getPropByPath(item, column.field).get()))
+        if (!values.every(value => isNaN(value))){
+          summary[idx] = values.reduce((prev, curr) => {
+            return prev + curr
+          })
+        }
+        else {
+          summary[idx] = ''
+        }
+      })
+      return summary
     },
 
     // 公开方法

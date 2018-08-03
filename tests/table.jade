@@ -6,17 +6,21 @@ block title
 block content
   div.panel
     h3| Table
-    div.margin-10(style="width:500px;")
+    div.margin-10(style="width:700px;")
       r-table(
         :data="data", 
         ref="table", 
-        :border="false", 
+        :border="true", 
         :show-header="true",
         :sort-method="sort",
         :sort-field="sortField",
         :sort-dir="sortDir",
         :loading="loading",
-        @row-click="rowClick"
+        @check-all-change="checkAllChange",
+        @check-change="checkChange",
+        @row-click="rowClick",
+        :show-summary="true",
+        summary-text="总和",
       )
         
         r-table-column(
@@ -27,6 +31,10 @@ block content
           width="50",
           type="index",
         )
+        r-table-column(title="datepicker")
+          template(slot-scope="scope")
+            r-timepicker()
+
         r-table-column(
           title="姓名",
           field="name",
@@ -76,6 +84,8 @@ block content
         :page-size="10000"
       )
 
+      div(v-if="hello[0]") 123_{{hello[0].x}} 
+
 block script
   script.
     var data = []
@@ -93,6 +103,7 @@ block script
       el: '#app',
       data () {
         return {
+          hello: [],
           data : data,
           test: true,
           sortField: 'math',
@@ -107,7 +118,8 @@ block script
       },
       methods: {
         _alert (id) {
-          alert(id)
+          //- alert(id)
+          this.$alert(id)
         },
         sort (dir, field) {
           this.loading = true
@@ -133,6 +145,15 @@ block script
         },
         rowClick (data, e) {
           this.$message(data.id)
+        },
+        checkAllChange (isChecked) {
+          console.log(isChecked)
+        },
+        checkChange (data) {
+          console.log(data)
+        },
+        summary (columns, data) {
+          return ['你好', '', '', 100, 100, '']
         }
       }
     })

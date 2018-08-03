@@ -221,19 +221,20 @@ export var RFormItem = Vue.extend({
 
         })
       })
+    },
+    resetValidate () {
+      this.errorMsg = ''
     }
   },
   render (h) {
     jsx.h = h
     var me = this
 
-    var errorMsg = typeof this.errorMsg === 'function' ? this.errorMsg.call(this, h) : this.errorMsg
-
     return div('.' + this.cls.join('+'),
       label('.r-form-item-label', {vif: !!this.label, s_width:!this.inline ? this.labelWidth + 'px' : 'auto'}, this.label),
       div('.r-form-item-content', 
         ...this.$slots.default,
-        div('.r-form-item-error-tip', errorMsg)
+        div('.r-form-item-error-tip', this.errorMsg)
       )
     )
   }

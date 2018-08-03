@@ -32,7 +32,13 @@ var RPage = Vue.extend({
       return cls
     },
   },
+  watch: {
+  },
   methods: {
+    _emitChange (value) {
+      this.$emit('input', value)
+      this.$emit('change', value)
+    }
   },
   render (h) {
     jsx.h = h
@@ -47,14 +53,14 @@ var RPage = Vue.extend({
 
     return (
       div('.r-page',
-        span('.r-page-total', {vif: this.showTotal}, '共 ' + this.total + ' 条'),
+        span('.r-page-total', {vif: this.showTotal}, `共 ${this.total} 条，${pageTotal} 页`),
       
         // 上一页
         rButton({
           p_disabled: this.value === 1 ? true : false,
           p_size: this.size,
           no_click () {
-            me.$emit('input', me.value - 1)
+            me._emitChange(me.value - 1)
           }
         }, '上一页'),
 
@@ -67,7 +73,7 @@ var RPage = Vue.extend({
           p_size: this.size,
           s_width: Math.max(0, pageTotal.toString().length - 2) * 10 + 60 + 'px',
           o_input (value) {
-            me.$emit('input', value)
+            me._emitChange(value)
           }
         },
           ...getNumArr(1, Math.min(pageTotal, 100)).map(i => {
@@ -83,7 +89,7 @@ var RPage = Vue.extend({
           p_disabled: this.value >= pageTotal ? true : false,
           p_size: this.size,
           no_click () {
-            me.$emit('input', me.value + 1)
+            me._emitChange(me.value + 1)
           }
         }, '下一页')
       )

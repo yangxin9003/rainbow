@@ -7,7 +7,10 @@ var {div, rIcon, span, rInput} = jsx
 
 var RDatepicker = Vue.extend({
   props: {
-    value: String,
+    value: {
+      type: String,
+      default: '',
+    },
     placeholder: {
       type: String,
       default: '选择日期',
@@ -67,9 +70,15 @@ var RDatepicker = Vue.extend({
   methods: {
     _getValueDate () {
       var value = this.value
-      if (value && (this.format === 'c') ){
-        value = value.replace(/[年月]/g, '-').replace('日', '')
+      
+      if (value){
+        if (this.format === 'c'){
+          value = value.replace(/[年月]/g, '-').replace('日', '')
+        }
+        // safari 解析2018-03-03 12:12:12格式出错，
+        value = value.replace('-', '/')
       }
+
       return new Date(value)
     },
     // 同步value的值给year, month

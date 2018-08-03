@@ -18,7 +18,8 @@ block content
         r-form-item(
           label="输入框", 
           prop="input",
-          required
+          required,
+          ref="myFormInput"
         )
           
           r-input(
@@ -216,19 +217,21 @@ block script
       },
       methods: {
         required (value, callback) {
+          jsx.h = this.$createElement
           var {div, a} = jsx
+
 
           if (value instanceof Array){
             if (value.length > 0){
               callback(true)
             }
             else {
-              callback(false, () => {
-                return div(
+              callback(false, 
+                Div(
                   '不能为空 ',
                   a({a_href:'https://baidu.com'}, '点击查看详情')
                 )
-              })
+              )
             }
           }
           else {
@@ -236,12 +239,12 @@ block script
               callback(true)
             }
             else {
-              callback(false, () => {
-                return div(
-                  '不能为空',
+              callback(false, 
+                Div(
+                  '不能为空 ',
                   a({a_href:'https://baidu.com'}, '点击查看详情')
                 )
-              })
+              )
             }
           }
           
